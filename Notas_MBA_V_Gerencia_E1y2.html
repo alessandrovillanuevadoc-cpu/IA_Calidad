@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONSULTA DE NOTAS</title>
+    <style>
+        body { 
+            font-family: Calibri, Arial, sans-serif; 
+            background-color: #ffffff; 
+            color: #000; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+        }
+        h1 { 
+            text-align: center; 
+            color: #000; 
+            margin-bottom: 20px; 
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+        .search-box { 
+            display: flex; 
+            justify-content: center; 
+            margin-bottom: 30px; 
+        }
+        input[type="text"] { 
+            width: 300px; 
+            padding: 8px 12px; 
+            border: 1px solid #7f7f7f; 
+            font-size: 14px; 
+            outline: none; 
+            font-family: Calibri, Arial, sans-serif;
+        }
+        button { 
+            padding: 8px 16px; 
+            background-color: #f2f2f2; 
+            color: #000; 
+            border: 1px solid #7f7f7f; 
+            border-left: none;
+            font-size: 14px; 
+            cursor: pointer; 
+            font-family: Calibri, Arial, sans-serif;
+            text-transform: uppercase;
+        }
+        button:hover { 
+            background-color: #e6e6e6; 
+        }
+        #error-msg { 
+            color: red; 
+            text-align: center; 
+            font-weight: bold; 
+            margin-bottom: 20px; 
+            display: none; 
+        }
+        .result-section { 
+            display: none; 
+        }
+        .student-info { 
+            margin-bottom: 15px; 
+            font-size: 16px;
+        }
+        h3 { 
+            font-size: 16px; 
+            margin-top: 30px; 
+            margin-bottom: 10px;
+            color: #000;
+            text-transform: uppercase;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 20px; 
+            font-size: 14px; 
+        }
+        th, td { 
+            border: 1px solid #000000; 
+            padding: 6px 8px; 
+            text-align: left; 
+            vertical-align: middle;
+        }
+        th { 
+            background-color: #f2f2f2; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            text-align: center;
+        }
+        
+        .bg-estrategias { background-color: #fce4d6; } 
+        .bg-forma { background-color: #e2efda; }       
+        .bg-estructura { background-color: #ddebf7; }  
+        .bg-bono { background-color: #fff2cc; }        
+        .bg-white { background-color: #ffffff; }
+        
+        .comments { 
+            background: #f9f9f9; 
+            padding: 15px; 
+            border: 1px solid #000; 
+            margin-top: 10px; 
+            font-style: italic; 
+            line-height: 1.4; 
+            text-align: justify;
+        }
+        .center-text {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CONSULTA DE NOTAS</h1>
+        <div class="search-box">
+            <input type="text" id="cedula" placeholder="Ingresa tu número de cédula..." autocomplete="off">
+            <button onclick="consultar()">CONSULTAR</button>
+        </div>
+        <div id="error-msg">Cédula no encontrada. Por favor, verifica el número.</div>
+        
+        <div id="result" class="result-section">
+            <div class="student-info">
+                <strong>Estudiante:</strong> <span id="student-name"></span><br>
+                <strong>Cédula:</strong> <span id="student-id"></span>
+            </div>
+            
+            <h3>ENTREGABLE 1</h3>
+            <div id="t1-content"></div>
+
+            <h3>ENTREGABLE 2</h3>
+            <div id="t2-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const db = {
+            "1020474277": { "name": "MARIA CAMILA ACEVEDO LONDOÑO" },
+            "1143464879": { "name": "ALEJANDRA LOPEZ SALAZAR" },
+            "1043876945": { 
+                "name": "AMAURY ROMERO ADARRAGA",
+                "t1": { "pregunta": 4.9, "bono": 4.8, "caso": 5, "sobrante": "0.38", "feedback": "Diagnóstico directo y riguroso usando el lenguaje de MBA. Clasifica a la empresa en la intersección PyME/Escalamiento, advirtiendo que los comités rígidos del CFO destruyen la agilidad. Centraliza correctamente la visibilidad del inventario y la caja (a través de dashboards), mientras mantiene descentralizadas las compras tácticas locales mediante guardrails presupuestarios y ciclos de respuesta de 12-24 horas.\nGran resolución del conflicto temporal entre la supervivencia inmediata (caja/inventario) y la supervivencia a mediano plazo (crecimiento comercial). Diseña una secuencia muy sólida: Pausa táctica para liquidar stock muerto en meses 1-3 -> WMS en la nube de bajo costo en meses 3-6 -> Crecimiento apalancado desde el mes 6." },
+                "t2": { "f1": 4.8, "f2": 5, "f3": 5, "bonoprev": "0.38", "final": 5.00, "sobrante": "0.31", "feedback": "Un trabajo de nivel directivo excepcional. Demuestra un dominio riguroso del marco estratégico de MBA, conectando las métricas operativas y financieras (EBITDA, TCO, Fill Rate) con las herramientas analíticas (Porter, VRIO, CAME). El documento es ejecutivo, conciso y se ajusta 100% a las pautas dadas." }
+            },
+            "1140869313": { 
+                "name": "ANGI SARMIENTO ZIMMERMAN",
+                "t1": { "pregunta": 4.2, "bono": 4, "caso": 4.6, "sobrante": "N/A", "feedback": "Identifica correctamente la eficiencia de haber alcanzado 5 millones de vistas y 30,000 descargas como un indicador de reducción drástica del CAC. Su argumento aborda la necesidad estratégica de rejuvenecer la base de clientes. No obstante, le faltó profundizar en el componente del LTV (cómo monetizar a ese estudiante universitario en el tiempo con productos de mayor margen).\nAunque identifica las áreas clave de control (no atacar al banco matriz, regulación y manejo de crisis), propone un 'sistema de aprobación previa para campañas de alto impacto'. Esta solución cae en la burocracia tradicional que ahoga la agilidad de los trends (cuello de botella de aprobación), contraviniendo el principio de autonomía bajo playbook descentralizado." },
+                "t2": { "f1": 4.1, "f2": 4.2, "f3": 4, "bonoprev": "N/A", "final": 4.10, "sobrante": "N/A", "feedback": "Presenta un diagnóstico muy bien documentado sobre los desafíos de la educación superior privada en Colombia frente a las políticas de gratuidad. Sus propuestas para integrar la internacionalización y las rutas formativas flexibles demuestran visión estratégica. Sin embargo, debe fortalecer la capacidad de síntesis y el seguimiento estricto de pautas, ya que analizó las 5 fuerzas completas (en lugar de priorizar las 3 principales) y formuló 3 decisiones en lugar de ceñirse a las 2 acciones requeridas en el CAME." }
+            },
+            "1045721730": { 
+                "name": "DARLIS ZAPATA ACUNA",
+                "t1": { "pregunta": 3.9, "bono": 4.2, "caso": 4.32, "sobrante": "N/A", "feedback": "Propone un modelo híbrido coherente de control inteligente, estandarizando compras, inventarios e indicadores clave. Sin embargo, su redacción incurre en redundancias estructurales (repite párrafos idénticos sobre la estabilización y la prueba piloto), lo que le resta claridad ejecutiva a su respuesta.\nAcierta al calificar como 'prematura' la inversión de 5M USD en el ERP, destacando acertadamente que la tecnología no resuelve problemas de procesos desordenados. Su recomendación de realizar un piloto antes del despliegue masivo es una excelente decisión de mitigación de riesgo." },
+                "t2": { "f1": 4.8, "f2": 4.2, "f3": 4, "bonoprev": "N/A", "final": 4.58, "sobrante": "N/A", "pareja": "SARIMARCELA MENDIVIL RIVERA", "feedback": "Un trabajo muy bien aterrizado al contexto real del negocio de crédito por libranza de BBVA. Demuestran un conocimiento profundo de la operación, conectando el rol de las entidades pagadoras con el riesgo de cartera de la entidad financiera. Para futuras entregas ejecutivas, se recomienda ceñirse estrictamente al número de acciones solicitadas para fortalecer el enfoque directivo en la toma de decisiones prioritarias." }
+            },
+            "1140827858": { 
+                "name": "FABIAN VILLARREAL LOBO",
+                "t1": { "pregunta": 4.3, "bono": 4.3, "caso": 4.73, "sobrante": "N/A", "feedback": "Estructura su respuesta en tres pilares prácticos bien diferenciados: control excesivo, fricción en el canal y burocracia aplicada al marketing. Aunque su diagnóstico de la lentitud y el rigor excesivo es correcto, le faltó conectar conceptualmente con la Paradoja de Ícaro o la Inercia Estructural (explicar que el mismo sistema que evita demandas por fallas clínicas destruye la velocidad en marketing viral).\nSelecciona una postura clara de Adquisición (M/A) aprovechando el músculo financiero de la multinacional y estableciendo que mantendría a la startup como una entidad independiente. Su respuesta es conceptualmente acertada, pero su defensa fue breve y no profundizó en la estructura de costos o la retención del talento clave de la empresa adquirida." },
+                "t2": { "f1": 4.2, "f2": 4.5, "f3": 4, "bonoprev": "N/A", "final": 4.23, "sobrante": "N/A", "feedback": "Desarrolla un análisis muy valioso al aplicar los marcos estratégicos a una estructura no tradicional de centro de servicios compartidos intragrupo, logrando identificar con agudeza la Amenaza de sustitutos (internalización de procesos) y la concentración en el Poder de clientes. Su evaluación VRIO es profunda, reconociendo adecuadamente que la dependencia exclusiva del grupo genera una 'ventaja con riesgo'. Sin embargo, para fortalecer la capacidad de síntesis ejecutiva exigida en la alta dirección, debió ceñirse estrictamente a las 3 fuerzas más disruptivas de Porter (en lugar de desarrollar las 5) y limitar el output a únicamente dos (2) acciones estratégicas prioritarias en el CAME, evitando la inclusión de pasos y matrices intermedias no solicitadas." }
+            },
+            "1004373453": { "name": "HERNAN CUAO VIDAL" },
+            "1144079539": { 
+                "name": "JAISSON LUCUMI CASTRO",
+                "t1": { "pregunta": 5, "bono": 5, "caso": 5, "sobrante": "0.5", "feedback": "Clasificación acertada de la compañía en la matriz y excelente criterio para separar las decisiones de alto impacto (datos maestros, políticas de min/max, compras core, tesorería) de las decisiones operativas locales (compras de nicho, exhibición, promociones). Identifica correctamente que la mala gestión de datos maestros es la causa raíz del 30% de las rupturas de stock.\nExcelente articulación directiva. Supera el falso dilema del 'todo o nada' evitando la parálisis por burocracia (tipo Target Canadá). Propone una hoja de ruta impecable en 3 fases: Pausa estratégica de 90 días con limpieza de datos (Fase 1) -> Herramienta intermedia/ligera de control antes del ERP (Fase 2) -> Despliegue del ERP de 5M cuando la caja lo soporte y los procesos estén maduros (Fase 3)." },
+                "t2": { "f1": 4.8, "f2": 4.7, "f3": 5, "bonoprev": "0.5", "final": 5.00, "sobrante": "0.33", "feedback": "Trabajo de nivel directivo excepcional. Realiza un filtro del entorno impecable centrándose exclusivamente en las 3 fuerzas más amenazantes de Porter y contextualizando la alta sensibilidad al precio en Puerto Tejada, Cauca. Su análisis VRIO destaca por una honestidad intelectual brillante: reconoce objetivamente que el negocio opera bajo ventajas competitivas temporales replicables en un horizonte de 2 a 3 años por competidores con mayor capital. Cierra con un CAME perfectamente ejecutado en 2 decisiones prioritarias y concluye con una premisa gerencial sobresaliente: en sectores de alta rivalidad, el objetivo estratégico no es buscar una ventaja definitiva e inimitable, sino orquestar un 'ciclo continuo de ventajas temporales'." }
+            },
+            "1140858984": { "name": "JOSE PUA ORTEGA" },
+            "63535099": { "name": "KARENT DAHIANA CORREDOR LAYTON" },
+            "1045715001": { 
+                "name": "KATHY URIBE MEDINA",
+                "t1": { "pregunta": 4.1, "bono": 4.3, "caso": 4.53, "sobrante": "N/A", "feedback": "Identifica con claridad qué centralizar (planeación, presupuesto, proveedores principales, inventarios) y qué descentralizar en las tiendas (compras locales, respuesta a la demanda). No obstante, su desarrollo es cualitativo y no utiliza explícitamente el marco ni la terminología de la Matriz 3x2 (Mediana en Crecimiento / Escalamiento).\nArgumentación pragmática y equilibrada. Propone un tablero de control con indicadores semanales (AGOTADOS, rotación, flujo de caja) y sugiere realizar una prueba tecnológica piloto antes de comprometer los 5M USD en el ERP. Condiciona las nuevas aperturas al cumplimiento de capacidades operativas mínimas." },
+                "t2": { "f1": 4, "f2": 4.3, "f3": 5, "bonoprev": "N/A", "final": 4.43, "sobrante": "N/A", "feedback": "Es una propuesta muy estructurada, pragmática y realista para un emprendimiento de servicios/comercio. Destaca especialmente la diferenciación planteada a través de la herramienta del 'diagnóstico semáforo', así como el cierre impecable en la Fase 3 al ceñirse exactamente a las 2 acciones estratégicas requeridas. Para un desempeño perfecto en fases previas, debe asegurarse de no incluir fuerzas secundarias cuando la pauta solicite enfocarse exclusivamente en las 3 principales." }
+            },
+            "52421420": { 
+                "name": "KETTY SANCHEZ CARMONA",
+                "t1": { "pregunta": 4.8, "bono": 4.8, "caso": 5, "sobrante": "0.28", "feedback": "Respuesta excepcional. Articula un modelo financiero completo modelando un caso hipotético (CAC vs LTV, razón LTV/CAC = 6), explicando el concepto de margen acumulado y retorno de inversión. Adicionalmente, reconoce el riesgo de que un daño reputacional severo destruya el LTV de la marca matriz, demostrando un criterio gerencial holístico.\nSus tres límites (Regulatorio con tolerancia cero, Reputacional proscribiendo ataques directos a la matriz y Financiero condicionado a la calidad del usuario/retención) están redactados con precisión de gobierno corporativo. Logra el equilibrio exacto entre velocidad creativa y contención del riesgo bancario." }
+            },
+            "8485169": { "name": "LEONARDO MANTILLA VILLAREAL" },
+            "1140830105": { 
+                "name": "LIZETH QUANT VERGARA",
+                "t1": { "pregunta": 4.5, "bono": 3.5, "caso": 4.85, "sobrante": "N/A", "feedback": "Identifica con precisión la ubicación de la empresa en el cuadrante de Mediana en Crecimiento (priorizando expansión, digitalización y agilidad). Separa adecuadamente la centralización de políticas e información crítica de la descentralización de la ejecución comercial local.\nComprende la naturaleza del 'valle de la muerte' del flujo de caja, pero en su planteamiento se inclina hacia la postura del CFO argumentando que 'tiene mayor razón'. Aunque plantea una secuencia lógica (estabilizar -> ERP progresivo -> reanudar aperturas), no detalla el uso de una tecnología intermedia o ligera antes de acometer la inversión masiva de 5M USD." },
+                "t2": { "f1": 4.8, "f2": 4.5, "f3": 5, "bonoprev": "N/A", "final": 4.77, "sobrante": "N/A", "feedback": "Excelente ejercicio de auditoría estratégica aplicada al retail de descuento. Muestra un dominio práctico muy alto de la operación en tienda, conectando el riesgo de la cadena de suministro internacional con la velocidad del surtido en el piso de venta. Su formulación de acciones en el CAME mediante trolleys inteligentes e indicadores de abastecimiento es de nivel ejecutivo. Para un desempeño perfecto en el VRIO, se recomienda evitar respuestas intermedias ('Parcialmente') y mantener evaluaciones binarias." }
+            },
+            "91289911": { "name": "MILTON COTAMO RONDON" },
+            "1122400660": { 
+                "name": "RAFAEL MENDOZA DAZA",
+                "t1": { "pregunta": 4.8, "bono": 4.2, "caso": 5, "sobrante": "0.22", "feedback": "Presenta un argumento financiero sólido y maduro. Define explícitamente la relación de valor LTV/CAC (ejemplificando una razón 4:1) y explica cómo la retención a largo plazo compensa el gasto inicial. Su enfoque no defiende la indisciplina, sino la eficiencia en la captación de valor del cliente a lo largo de su ciclo de vida.\nPropone límites bien estructurados en los tres ejes (Regulatorio, Reputacional y Financiero). Su guardrail financiero (probar a pequeña escala, medir CAC/LTV y escalar solo con retorno) es tácticamente impecable. Sin embargo, en el guardrail reputacional incluye lemas publicitarios ('Más sabe el banco por viejo...'), lo cual se aleja levemente del formato de una norma de gobernanza e innegociabilidad." },
+                "t2": { "f1": 4, "f2": 4.8, "f3": 4, "bonoprev": "0.22", "final": 4.49, "sobrante": "N/A", "feedback": "Un trabajo analítico muy completo y bien argumentado para el sector agroalimentario. Demuestra una gran comprensión de la cadena de suministro y del valor de la marca a lo largo del tiempo. Para futuros entregables, es crucial seguir el filtro de síntesis ejecutiva y limitar los outputs al número exacto de acciones requeridas por la alta dirección." }
+            },
+            "1143454049": { 
+                "name": "SARAI BORELLY ESCALANTE",
+                "t1": { "pregunta": 4.8, "bono": 4.9, "caso": 5, "sobrante": "0.29", "feedback": "Excelente encuadre teórico. Clasifica adecuadamente a la farmacéutica como una Gran Empresa Estable (en Mantenimiento) dentro de la Matriz de Gobernanza y argumenta cómo la confianza acumulada redujo su velocidad de reacción y generó apatía/defensiva cultural ante la innovación. Explica con precisión el desfase temporal entre los comités regulatorios y la velocidad del entorno.\nArgumentación impecable. Elige la opción de M/A defendiendo que ignorar la pérdida del 15% de cuota de mercado sería un error estratégico nefasto para el LTV futuro. Justifica acertadamente por qué rechaza la opción de competir internamente (debido al riesgo de choque cultural e incompatibilidad de lenguaje que generaría crisis reputacional) y utiliza el marco de la matriz para justificar que la escala en esta etapa se logra mediante adquisición de marcas auténticas." },
+                "t2": { "f1": 5, "f2": 4.7, "f3": 5, "bonoprev": "0.29", "final": 5.00, "sobrante": "0.19", "feedback": "Trabajo sobresaliente. Aplica con impecable rigor gerencial los tres bloques del entregable. Identifica con agudeza la vulnerabilidad del margen ante los proveedores de insumos frescos y diseña una respuesta muy inteligente mediante el Menú Dinámico de Temporada y los paquetes de Coworking Saludable para monetizar las horas valle del restaurante. Se ciñó estrictamente a las restricciones de síntesis del taller." }
+            },
+            "1193071046": { 
+                "name": "SARIMARCELA MENDIVIL RIVERA",
+                "t1": { "pregunta": 4.8, "bono": 4.5, "caso": 5, "sobrante": "0.25", "feedback": "Muestra una excelente capacidad de síntesis. Conecta de forma directa el bajo CAC del volumen inicial con la estrategia de captura temprana de universitarios para monetizar su LTV mediante cross-selling futuro. Su postura es pragmática: no elimina la estrategia, pero exige recalibrar el tono.\nRedacta tres guardrails muy ejecutivos y claros: 1. Protección explicita a la solvencia y reputación de la matriz; 2. Cumplimiento regulatorio no negociable; 3. Evaluación por métricas de valor real (CAC, LTV, retención) y no solo métricas de vanidad (likes/views). Es un conjunto de límites sumamente operativo y equilibrado." },
+                "t2": { "f1": 4.8, "f2": 4.2, "f3": 4, "bonoprev": "0.25", "final": 4.58, "sobrante": "N/A", "pareja": "DARLIS ZAPATA ACUNA", "feedback": "Un trabajo muy bien aterrizado al contexto real del negocio de crédito por libranza de BBVA. Demuestran un conocimiento profundo de la operación, conectando el rol de las entidades pagadoras con el riesgo de cartera de la entidad financiera. Para futuras entregas ejecutivas, se recomienda ceñirse estrictamente al número de acciones solicitadas para fortalecer el enfoque directivo en la toma de decisiones prioritarias." }
+            }
+        };
+
+        function consultar() {
+            const cedula = document.getElementById('cedula').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const resultDiv = document.getElementById('result');
+            
+            if (!db[cedula]) {
+                errorMsg.style.display = 'block';
+                resultDiv.style.display = 'none';
+                return;
+            }
+            
+            errorMsg.style.display = 'none';
+            resultDiv.style.display = 'block';
+            
+            const student = db[cedula];
+            document.getElementById('student-name').innerText = student.name;
+            document.getElementById('student-id').innerText = cedula;
+            
+            // Build Entregable 1 HTML
+            let t1Content = "";
+            if (student.t1) {
+                let parejaTexto1 = student.t1.pareja ? `<strong>TRABAJO EN PAREJA CON: ${student.t1.pareja}</strong><br><br>` : "";
+                t1Content = `
+                <table>
+                    <tr><th>CRITERIO</th><th>CALIFICACIÓN</th></tr>
+                    <tr class="bg-estructura"><td>Nota pregunta</td><td class="bg-white center-text">${student.t1.pregunta}</td></tr>
+                    <tr class="bg-estrategias"><td>Nota bono</td><td class="bg-white center-text">${student.t1.bono}</td></tr>
+                    <tr class="bg-bono"><td>Bono sobrante</td><td class="bg-white center-text">${student.t1.sobrante}</td></tr>
+                    <tr><td style="font-weight:bold; text-transform: uppercase;">Nota final entregable 1</td><td class="bg-white center-text" style="font-weight:bold;">${student.t1.caso}</td></tr>
+                </table>
+                <div class="comments"><strong>Feedback general:</strong><br><br>${parejaTexto1}${student.t1.feedback.replace(/\n/g, "<br>")}</div>`;
+            } else {
+                t1Content = "<p style='color:red; font-style:italic;'>No hay registro de notas para el Entregable 1.</p>";
+            }
+            document.getElementById('t1-content').innerHTML = t1Content;
+
+            // Build Entregable 2 HTML
+            let t2Content = "";
+            if (student.t2) {
+                let parejaTexto2 = student.t2.pareja ? `<strong>TRABAJO EN PAREJA CON: ${student.t2.pareja}</strong><br><br>` : "";
+                t2Content = `
+                <table>
+                    <tr><th>CRITERIO</th><th>CALIFICACIÓN</th></tr>
+                    <tr class="bg-estructura"><td>Fase 1 (Porter)</td><td class="bg-white center-text">${student.t2.f1}</td></tr>
+                    <tr class="bg-estrategias"><td>Fase 2 (VRIO)</td><td class="bg-white center-text">${student.t2.f2}</td></tr>
+                    <tr class="bg-forma"><td>Fase 3 (CAME)</td><td class="bg-white center-text">${student.t2.f3}</td></tr>
+                    <tr class="bg-bono"><td>Bono previo</td><td class="bg-white center-text">${student.t2.bonoprev}</td></tr>
+                    <tr class="bg-bono"><td>Bono sobrante actual</td><td class="bg-white center-text">${student.t2.sobrante}</td></tr>
+                    <tr><td style="font-weight:bold; text-transform: uppercase;">Nota final entregable 2</td><td class="bg-white center-text" style="font-weight:bold;">${student.t2.final}</td></tr>
+                </table>
+                <div class="comments"><strong>Feedback general:</strong><br><br>${parejaTexto2}${student.t2.feedback.replace(/\n/g, "<br>")}</div>`;
+            } else {
+                t2Content = "<p style='color:red; font-style:italic;'>No hay registro de notas para el Entregable 2.</p>";
+            }
+            document.getElementById('t2-content').innerHTML = t2Content;
+        }
+    </script>
+</body>
+</html>
